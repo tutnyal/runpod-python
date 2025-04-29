@@ -129,7 +129,8 @@ def upload_image(
 
         return sim_upload_location
 
-    bucket = bucket_name if bucket_name else time.strftime("%m-%y")
+    # bucket = bucket_name if bucket_name else time.strftime("%m-%y")
+    bucket = "outputs"
     boto_client.put_object(
         Bucket=f"{bucket}",
         Key=f"{job_id}/{image_name}{file_extension}",
