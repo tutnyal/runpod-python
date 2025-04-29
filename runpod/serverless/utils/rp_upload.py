@@ -102,7 +102,6 @@ def upload_image(
     """
     Upload a single file to bucket storage.
     """
-    image_name = str(uuid.uuid4())[:8]
     boto_client, _ = get_boto_client()
     file_extension = os.path.splitext(image_location)[1]
     content_type = "image/" + file_extension.lstrip(".")
@@ -119,7 +118,7 @@ def upload_image(
         )  # pylint: disable=line-too-long
 
         os.makedirs("simulated_uploaded", exist_ok=True)
-        sim_upload_location = f"simulated_uploaded/{image_name}{file_extension}"
+        sim_upload_location = f"simulated_uploaded/{os.path.basename(job_id)}"
 
         with open(sim_upload_location, "wb") as file_output:
             file_output.write(output)
@@ -129,18 +128,17 @@ def upload_image(
 
         return sim_upload_location
 
-    # bucket = bucket_name if bucket_name else time.strftime("%m-%y")
-    bucket = "outputs"
+    bucket = "outputs"  # Always use the 'outputs' bucket
     boto_client.put_object(
-        Bucket=f"{bucket}",
-        Key=f"{job_id}/{image_name}{file_extension}",
+        Bucket=bucket,
+        Key=job_id,
         Body=output,
         ContentType=content_type,
     )
 
     presigned_url = boto_client.generate_presigned_url(
         "get_object",
-        Params={"Bucket": f"{bucket}", "Key": f"{job_id}/{image_name}{file_extension}"},
+        Params={"Bucket": bucket, "Key": job_id},
         ExpiresIn=604800,
     )
 
